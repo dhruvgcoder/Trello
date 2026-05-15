@@ -13,20 +13,20 @@ const app = express();
 app.use(express.json());
 
 
-app.use("/signup",userRouter)
-app.use("/signin",userRouter)
-app.use("/boards",userRouter)
-app.use("/issues",userRouter)
-app.use("/update-issue",userRouter)
+app.use("/",userRouter)
+app.use("/",userRouter)
+app.use("/",userRouter)
+app.use("/",userRouter)
+app.use("/",userRouter)
 
 
-app.use("/create-organization",authRouter)
-app.use("/invite-member-to-organization",authRouter)
+app.use("/",authRouter)
+app.use("/",authRouter)
 
 
-app.use("/members",organizationRouter)
-app.use("/remove-member",organizationRouter)
-app.use("/members",organizationRouter)
+app.use("/",organizationRouter)
+app.use("/",organizationRouter)
+app.use("/",organizationRouter)
 
 const PORT = process.env.PORT || 3001
 

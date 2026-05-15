@@ -6,10 +6,3 @@ export const inputValidation = z.object({
 })
 
 export type InputType = z.infer<typeof inputValidation>
-
-export const envSchema = z.object({
-    userSecret : z.string(),
-    MONGODB_URL : z.string()
-})
-
-export type envType = z.infer<typeof envSchema>
