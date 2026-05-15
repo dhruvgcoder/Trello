@@ -14,19 +14,9 @@ app.use(express.json());
 
 
 app.use("/",userRouter)
-app.use("/",userRouter)
-app.use("/",userRouter)
-app.use("/",userRouter)
-app.use("/",userRouter)
-
-
 app.use("/",authRouter)
-app.use("/",authRouter)
+app.use("/",organizationRouter)
 
-
-app.use("/",organizationRouter)
-app.use("/",organizationRouter)
-app.use("/",organizationRouter)
 
 const PORT = process.env.PORT || 3001
 
