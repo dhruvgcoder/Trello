@@ -1,1 +1,0 @@
-{"root":["./src/db.ts","./src/env.ts","./src/index.ts","./src/middleware.ts","./src/types.d.ts","./src/z.ts","./src/routes/auth.route.ts","./src/routes/organization.route.ts","./src/routes/user.route.ts"],"version":"6.0.3"}
