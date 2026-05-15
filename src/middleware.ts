@@ -13,7 +13,7 @@ export function authMiddleware(
 
         if(typeof token !== "string"){
             res.status(401).json({
-                msg : "Invalid Type of token"
+                msg : "Token is Missing"
             });
             return
         }
@@ -36,4 +36,5 @@ export function authMiddleware(
         })
     }
 }
+
 
