@@ -3,9 +3,10 @@ import jwt from "jsonwebtoken";
 import { Router } from "express";
 import type { Request , Response } from "express";
 
-import { inputValidation , type InputType } from "../z.js"
+import { inputValidation , type InputType , signinValidation , type signinInputType  } from "../z.js"
 import { userModel } from "../db.js"
 import { env } from "../env.js"
+// import { signinValidation , type signinInputType } from "../z.js"
 
 export const userRouter = Router();
 
@@ -45,7 +46,16 @@ userRouter.post("/signup", async (req : Request<{},{},InputType>, res : Response
 });
 
 userRouter.post("/signin", async (req : Request, res : Response) => {
-    const username = req.body.username
+
+    const userData = signinValidation.safeParse(req.body.username)
+    console.log(userData)
+    if(!userData.success){
+        res.json({
+            
+        })
+        return
+    }
+    const { username } : signinInputType = userData.data
     const userExist = await userModel.findOne({
         username: username
     })
