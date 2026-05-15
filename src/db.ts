@@ -1,4 +1,4 @@
-import mongoose , {Schema} from "mongoose"
+import mongoose , {Schema , model } from "mongoose"
 import type { InferSchemaType } from "mongoose"
 
 
@@ -11,7 +11,7 @@ const userSchema = new Schema({
 const organizationSchema = new Schema({
     title : String ,
     description : String ,
-    admin : Schema.Types.ObjectId ,
+    admin : { type : Schema.Types.ObjectId , required : true } ,
     members : [Schema.Types.ObjectId]
 
 });
@@ -19,6 +19,6 @@ const organizationSchema = new Schema({
 type userType = InferSchemaType<typeof userSchema>
 type organizationType  = InferSchemaType<typeof organizationSchema>
 
-export const userModel = mongoose.model<userType>("users" , userSchema)
-export const organizationModel = mongoose.model<organizationType>("organizations" , organizationSchema)
+export const userModel = model<userType>("users" , userSchema)
+export const organizationModel = model<organizationType>("organizations" , organizationSchema)
 
