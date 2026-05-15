@@ -1,10 +1,10 @@
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import { Router } from "express";
-import type { Request , Response , NextFunction } from "express";
+import type { Request , Response } from "express";
 
 import { inputValidation , type InputType } from "../z.js"
-import { userModel , organizationModel } from "../db.js"
+import { userModel } from "../db.js"
 
 export const userRouter = Router();
 
