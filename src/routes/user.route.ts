@@ -1,17 +1,19 @@
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
-import { Router } from "express";
-import type { Request , Response } from "express";
 
-import { inputValidation , type InputType , signinValidation , type signinInputType  } from "../z.js"
-import { userModel } from "../db.js"
+import { Router } from "express";
+import type { Request, Response } from "express";
+
 import { env } from "../env.js"
-// import { signinValidation , type signinInputType } from "../z.js"
+import { userModel, boardsModel } from "../db.js"
+import { authMiddleware } from "../middleware.js"
+import { getOrganizations } from "../helper/org.helper.js"
+import { inputValidation, type InputType, signinValidation, type signinInputType } from "../z.js"
 
 export const userRouter = Router();
 
 
-userRouter.post("/signup", async (req : Request<{},{},InputType>, res : Response) => {
+userRouter.post("/signup", async (req: Request<{}, {}, InputType>, res: Response) => {
 
     const parsed = inputValidation.safeParse(req.body)
 
@@ -32,7 +34,7 @@ userRouter.post("/signup", async (req : Request<{},{},InputType>, res : Response
         })
         return
     }
-    const hashPassword  = await bcrypt.hash(password, 12)
+    const hashPassword = await bcrypt.hash(password, 12)
 
     const newUser = await userModel.create({
         username: username,
@@ -45,17 +47,16 @@ userRouter.post("/signup", async (req : Request<{},{},InputType>, res : Response
     })
 });
 
-userRouter.post("/signin", async (req : Request, res : Response) => {
+userRouter.post("/signin", async (req: Request, res: Response) => {
 
-    const userData = signinValidation.safeParse(req.body.username)
-    console.log(userData)
-    if(!userData.success){
+    const userData = signinValidation.safeParse(req.body)
+    if (!userData.success) {
         res.json({
-            
+            msg: "invalid username"
         })
         return
     }
-    const { username } : signinInputType = userData.data
+    const { username }: signinInputType = userData.data
     const userExist = await userModel.findOne({
         username: username
     })
@@ -84,14 +85,33 @@ userRouter.post("/signin", async (req : Request, res : Response) => {
 
 });
 
-userRouter.get("/boards",(req : Request,res : Response)=>{
-    
+userRouter.get("/boards", authMiddleware, async (req: Request, res: Response) => {
+    const userId = req.userId
+    const orgs = await getOrganizations(userId)
+    const orgsId = orgs.map(org => org._id)
+    const boards = await boardsModel.find({
+        organization : { $in : orgsId}
+    })
+
+    if(boards.length === 0){
+        res.status(400).json({
+            msg : "No boards found"
+        })
+        return
+    }
+    res.status(200).json({
+        boards : boards.map(board =>({
+            title : board.title ,
+            organization : board.organization
+        }))
+    })
 })
 
-userRouter.get("/issues",(req : Request,res : Response)=>{
-    
+
+userRouter.get("/issues", authMiddleware, (req: Request, res: Response) => {
+
 })
 
-userRouter.put("/update-issue",(req : Request,res : Response)=>{
-    
+userRouter.put("/update-issue", authMiddleware, (req: Request, res: Response) => {
+
 })

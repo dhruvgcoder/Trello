@@ -1,7 +1,9 @@
 import { Router } from "express";
+
 import type { Request, Response } from "express";
 import { authMiddleware } from "../middleware.js";
 import { organizationModel, userModel } from "../db.js";
+import { getOrganizations } from "../helper/org.helper.js"
 
 export const organizationRouter = Router();
 
@@ -53,34 +55,48 @@ organizationRouter.post("/invite-member-to-organization", authMiddleware, async 
         return
     }
 
-    if(organization.members.includes(memberUser._id)){
+    if (organization.members.includes(memberUser._id)) {
         res.status(400).json({
-            msg : "User is already in the organization"
+            msg: "User is already in the organization"
         })
         return
     }
 
-   await organizationModel.findByIdAndUpdate(
-        organizationId ,
-        { $addToSet : {
-            members : memberUser._id        
-        }
-    })
+    await organizationModel.findByIdAndUpdate(
+        organizationId,
+        {
+            $addToSet: {
+                members: memberUser._id
+            }
+        })
     res.status(200).json({
-        msg : "User invited succesfully",
-        id : memberUser._id
+        msg: "User invited succesfully",
+        id: memberUser._id
     })
 });
 
 
-organizationRouter.get("/organizations",(req : Request,res : Response)=>{
-    
+organizationRouter.get("/organizations", authMiddleware, async (req: Request, res: Response) => {
+    const userId = req.userId
+    const orgs = await getOrganizations(userId)
+    if (orgs.length == 0) {
+        res.status(400).json({
+            msg: "You are not part of any organization"
+        })
+        return
+    }
+    res.status(200).json({
+        orgs: orgs.map(org => ({
+            id: org._id,
+            title: org.title
+        }))
+    })
 })
 
-organizationRouter.get("/members",(req : Request,res : Response)=>{
-    
+organizationRouter.get("/members", authMiddleware, (req: Request, res: Response) => {
+
 })
 
-organizationRouter.delete("/remove-member",(req : Request,res : Response)=>{
-    
+organizationRouter.delete("/remove-member", authMiddleware, (req: Request, res: Response) => {
+
 })
