@@ -3,7 +3,6 @@ import mongoose from "mongoose";
 import dotenv from "dotenv";
 
 import { userRouter } from "./routes/user.route.js";
-import { authRouter } from "./routes/auth.route.js";
 import { organizationRouter } from "./routes/organization.route.js";
 import { env } from "./env.js";
 
@@ -14,7 +13,6 @@ app.use(express.json());
 
 
 app.use("/",userRouter)
-app.use("/",authRouter)
 app.use("/",organizationRouter)
 
 
