@@ -31,7 +31,7 @@ export function authMiddleware(
             })
         }
     } catch (err) {
-        res.json({
+        res.status(400).json({
             msg: "Invalid token"
         })
     }
