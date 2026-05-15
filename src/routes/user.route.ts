@@ -5,6 +5,7 @@ import type { Request , Response } from "express";
 
 import { inputValidation , type InputType } from "../z.js"
 import { userModel } from "../db.js"
+import { env } from "../env.js"
 
 export const userRouter = Router();
 
@@ -66,7 +67,7 @@ userRouter.post("/signin", async (req : Request, res : Response) => {
 
     const token = jwt.sign({
         userId: userExist.id
-    }, process.env.userSecret as string)
+    }, env.userSecret)
     res.json({
         token: token
     })
