@@ -1,9 +1,12 @@
 import { Router } from "express";
 
 import type { Request, Response } from "express";
-import { authMiddleware } from "../middleware.js";
+import { authMiddleware } from "../authMiddleware.js";
 import { organizationModel, userModel } from "../db.js";
-import { getOrganizations } from "../helper/org.helper.js"
+// import { getOrganizations } from "../helper/org.helper.js"
+import { organizationService } from "../services/organization.service.js"
+import { adminMiddleware } from "../adminMiddleware.js"
+
 
 export const organizationRouter = Router();
 
@@ -76,15 +79,17 @@ organizationRouter.post("/invite-member-to-organization", authMiddleware, async 
 });
 
 
-organizationRouter.get("/organizations", authMiddleware, async (req: Request, res: Response) => {
+organizationRouter.get("/organizations", authMiddleware ,async (req: Request, res: Response) => {
     const userId = req.userId
-    const orgs = await getOrganizations(userId)
+    const orgs = await organizationService.getListOfOrgs(userId)
     if (orgs.length == 0) {
         res.status(400).json({
             msg: "You are not part of any organization"
         })
         return
     }
+    console.log(orgs)
+
     res.status(200).json({
         orgs: orgs.map(org => ({
             id: org._id,
@@ -93,10 +98,24 @@ organizationRouter.get("/organizations", authMiddleware, async (req: Request, re
     })
 })
 
-organizationRouter.get("/members", authMiddleware, (req: Request, res: Response) => {
+organizationRouter.get("/members/:orgId", authMiddleware,adminMiddleware ,async (req: Request, res: Response) => {
+    console.log("/member")
+    const orgId = req.params.orgId
+    console.log(orgId)
+    const members = await organizationService.getMembers(orgId as string)
+
+    if(!members){
+        res.status(411).json({
+            msg : "No members in this organization"
+        })
+        return
+    }
+    res.status(200).json({
+        members: members
+    })
 
 })
 
-organizationRouter.delete("/remove-member", authMiddleware, (req: Request, res: Response) => {
-
+organizationRouter.delete("/remove-member/:orgId", authMiddleware, (req: Request, res: Response) => {
+    
 })

@@ -6,9 +6,10 @@ import type { Request, Response } from "express";
 
 import { env } from "../env.js"
 import { userModel, boardsModel } from "../db.js"
-import { authMiddleware } from "../middleware.js"
+import { authMiddleware } from "../authMiddleware.js"
 import { getOrganizations } from "../helper/org.helper.js"
 import { inputValidation, type InputType, signinValidation, type signinInputType } from "../z.js"
+import { userService } from "../services/user.service.js"
 
 export const userRouter = Router();
 
