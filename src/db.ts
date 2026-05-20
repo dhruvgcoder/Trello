@@ -1,8 +1,6 @@
 import { Schema, model } from "mongoose"
 import type { InferSchemaType } from "mongoose"
 
-import mongoose from "mongoose"
-
 
 const userSchema = new Schema({
     username: { type: String, required: true, unique: true },
@@ -30,16 +28,16 @@ const issueSchema = new Schema({
         type: String,
         enum: [
             "inProgress", "pending", "done", "archived"
-        ]
+        ] , default : "inProgress"
     },
     createdAt: { type: Date, default: Date.now },
-    statusChangedAt: { type: Date }
+    statusUpdatedAt: { type: Date }
 })
 
-export type userType = InferSchemaType<typeof userSchema>
+export type userType = InferSchemaType<typeof userSchema> 
 export type organizationType = InferSchemaType<typeof organizationSchema> & BaseDocument
-type boardsType = InferSchemaType<typeof boardsSchema>
-type issueType = InferSchemaType<typeof issueSchema>
+export type boardsType = InferSchemaType<typeof boardsSchema> 
+export type issueType = InferSchemaType<typeof issueSchema> 
 
 export const userModel = model<userType>("users", userSchema)
 export const organizationModel = model<organizationType>("organizations", organizationSchema)

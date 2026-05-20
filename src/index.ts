@@ -4,6 +4,10 @@ import dotenv from "dotenv";
 
 import { userRouter } from "./routes/user.route.js";
 import { organizationRouter } from "./routes/organization.route.js";
+import { boardsRouter } from "./routes/board.route.js";
+import { issuesRouter } from "./routes/issue.route.js";
+
+
 import { env } from "./env.js";
 
 
@@ -12,8 +16,10 @@ const app = express();
 app.use(express.json());
 
 
-app.use("/",userRouter)
-app.use("/",organizationRouter)
+app.use("/users",userRouter)
+app.use("/organization",organizationRouter)
+app.use("/boards",boardsRouter)
+app.use("/issues",issuesRouter)
 
 
 const PORT = process.env.PORT || 3001
