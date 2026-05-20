@@ -7,9 +7,8 @@ import type { Request, Response } from "express";
 import { env } from "../env.js"
 import { userModel, boardsModel } from "../db.js"
 import { authMiddleware } from "../authMiddleware.js"
-import { getOrganizations } from "../helper/org.helper.js"
 import { inputValidation, type InputType, signinValidation, type signinInputType } from "../z.js"
-import { userService } from "../services/user.service.js"
+import { organizationService } from "../services/organization.service.js"
 
 export const userRouter = Router();
 
@@ -88,8 +87,8 @@ userRouter.post("/signin", async (req: Request, res: Response) => {
 
 userRouter.get("/boards", authMiddleware, async (req: Request, res: Response) => {
     const userId = req.userId
-    const orgs = await getOrganizations(userId)
-    const orgsId = orgs.map(org => org._id)
+    const orgs = await organizationService.getListOfOrgs(userId)
+    const orgsId = orgs.map(org => org.id)
     const boards = await boardsModel.find({
         organization : { $in : orgsId}
     })
