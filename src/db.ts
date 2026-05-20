@@ -1,6 +1,8 @@
 import { Schema, model } from "mongoose"
 import type { InferSchemaType } from "mongoose"
 
+import mongoose from "mongoose"
+
 
 const userSchema = new Schema({
     username: { type: String, required: true, unique: true },
@@ -9,6 +11,7 @@ const userSchema = new Schema({
 })
 
 const organizationSchema = new Schema({
+    _id : { type: Schema.Types.ObjectId , default : new mongoose.Types.ObjectId() },
     title: String,
     description: String,
     admin: { type: Schema.Types.ObjectId, required: true },
@@ -34,8 +37,8 @@ const issueSchema = new Schema({
     statusChangedAt: { type: Date }
 })
 
-type userType = InferSchemaType<typeof userSchema>
-type organizationType = InferSchemaType<typeof organizationSchema>
+export type userType = InferSchemaType<typeof userSchema>
+export type organizationType = InferSchemaType<typeof organizationSchema>
 type boardsType = InferSchemaType<typeof boardsSchema>
 type issueType = InferSchemaType<typeof issueSchema>
 
@@ -43,4 +46,5 @@ export const userModel = model<userType>("users", userSchema)
 export const organizationModel = model<organizationType>("organizations", organizationSchema)
 export const boardsModel = model<boardsType>("boards", boardsSchema)
 export const issueModel = model<issueType>("issue", issueSchema)
+
 
