@@ -7,8 +7,6 @@ export async function adminMiddleware(
     res: Response,
     next: NextFunction) {
     try {
-        console.log("authmiddleware")
-
         const orgId = req.params.orgId
         const userId = req.userId
         if (!orgId || !userId) {
