@@ -1,9 +1,9 @@
+
 import { Router } from "express";
 
 import type { Request, Response } from "express";
 import { authMiddleware } from "../authMiddleware.js";
 import { organizationModel, userModel } from "../db.js";
-// import { getOrganizations } from "../helper/org.helper.js"
 import { organizationService } from "../services/organization.service.js"
 import { adminMiddleware } from "../adminMiddleware.js"
 
@@ -14,7 +14,7 @@ organizationRouter.post("/create-organization", authMiddleware, async (req: Requ
     const userId = req.userId
     const { title, description } = req.body
 
-
+try {
     if (!userId) {
         res.status(401).json({
             msg: "Not authorised"
@@ -26,12 +26,18 @@ organizationRouter.post("/create-organization", authMiddleware, async (req: Requ
         title: title,
         description: description,
         admin: userId,
-        members: []
+        members: [userId]
     })
     res.json({
         msg: "Organization Created",
         orgId: organization._id
     })
+}catch(err){
+    res.json({
+        msg : "Error creating organization"
+    })
+    return
+}
 
 })
 organizationRouter.post("/invite-member-to-organization", authMiddleware, async (req: Request, res: Response) => {
@@ -88,7 +94,6 @@ organizationRouter.get("/organizations", authMiddleware ,async (req: Request, re
         })
         return
     }
-    console.log(orgs)
 
     res.status(200).json({
         orgs: orgs.map(org => ({
@@ -99,9 +104,7 @@ organizationRouter.get("/organizations", authMiddleware ,async (req: Request, re
 })
 
 organizationRouter.get("/members/:orgId", authMiddleware,adminMiddleware ,async (req: Request, res: Response) => {
-    console.log("/member")
     const orgId = req.params.orgId
-    console.log(orgId)
     const members = await organizationService.getMembers(orgId as string)
 
     if(!members){
