@@ -11,7 +11,6 @@ const userSchema = new Schema({
 })
 
 const organizationSchema = new Schema({
-    _id : { type: Schema.Types.ObjectId , default : new mongoose.Types.ObjectId() },
     title: String,
     description: String,
     admin: { type: Schema.Types.ObjectId, required: true },
@@ -38,7 +37,7 @@ const issueSchema = new Schema({
 })
 
 export type userType = InferSchemaType<typeof userSchema>
-export type organizationType = InferSchemaType<typeof organizationSchema>
+export type organizationType = InferSchemaType<typeof organizationSchema> & BaseDocument
 type boardsType = InferSchemaType<typeof boardsSchema>
 type issueType = InferSchemaType<typeof issueSchema>
 
