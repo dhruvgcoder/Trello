@@ -3,9 +3,6 @@ import type { userType, organizationType } from "../db.js"
 
 import { Types } from "mongoose"
 
-
-
-
 class OrganizationService {
 
     // Get the list of organization user is part of.
@@ -14,20 +11,22 @@ class OrganizationService {
         const userObjectId = new Types.ObjectId(userId)
         const orgs = await organizationModel.find({
             $or: [
-            { members: { $in: [userObjectId] }} ,
-            { admin: userObjectId}
+                { members: { $in: [userObjectId] } },
+                { admin: userObjectId }
             ]
         })
         return orgs;
     }
-
 
     async getMembers(orgId: string): Promise<userType[] | null> {
         const orgData = await organizationModel
             .findById(orgId)
             .populate<{
                 members: userType[]
-            }>("members")
+            }>({
+                path: "members",
+                select: "username"
+            })
 
         if (!orgData) return null
 
