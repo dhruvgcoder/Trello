@@ -9,8 +9,6 @@ export function authMiddleware(
     res: Response,
     next: NextFunction) {
     try {
-        console.log("authmiddleware")
-
         const token = req.headers.token
 
         if(typeof token !== "string"){
