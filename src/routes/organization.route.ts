@@ -16,10 +16,10 @@ export const organizationRouter = Router();
 
 organizationRouter.post("/create", authMiddleware, createOrganization)
 
-organizationRouter.post("/:orgId/members", authMiddleware, inviteMemberToOrg)
+organizationRouter.post("/:orgId/invite", authMiddleware, adminMiddleware, inviteMemberToOrg)
 
 organizationRouter.get("/", authMiddleware, getOrganizations)
 
 organizationRouter.get("/:orgId/members", authMiddleware, adminMiddleware, getMembers)
 
-organizationRouter.delete("/:orgId/member/:userId/", authMiddleware, adminMiddleware, removeMember)
+organizationRouter.delete("/:orgId/remove", authMiddleware, adminMiddleware, removeMember)
