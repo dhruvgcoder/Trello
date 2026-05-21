@@ -9,20 +9,20 @@ const userSchema = new Schema({
 })
 
 const organizationSchema = new Schema({
-    title: String,
-    description: String,
+    title: {type: String, required: true},
+    description: {type: String, required: true},
     admin: { type: Schema.Types.ObjectId, required: true },
     members: [{ type: Schema.Types.ObjectId, ref: "users" }]
 
 });
 
 const boardsSchema = new Schema({
-    title: String,
+    title: {type: String, required: true},
     organization: { type: Schema.Types.ObjectId, ref: "organizations" }
 })
 
 const issueSchema = new Schema({
-    description: String,
+    description: {type: String , required: true},
     board: { type: Schema.Types.ObjectId, ref: "boards" },
     status: {
         type: String,
