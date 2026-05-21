@@ -68,7 +68,7 @@ export async function userSignin(req: Request, res: Response) {
     const password = req.body.password
     const checkPassword = await bcrypt.compare(password, userExist.password)
     if (!checkPassword) {
-        res.json({
+        res.status(400).json({
             msg: "Invalid credentials"
         })
         return
