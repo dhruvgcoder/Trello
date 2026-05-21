@@ -33,7 +33,7 @@ A RESTful API backend for a project management system built with Express.js, Mon
 
 1. Clone the repository:
 ```bash
-git clone <repository-url>
+git clone https://github.com/dhruvgcoder/Trello.git
 cd new
 ```
 
