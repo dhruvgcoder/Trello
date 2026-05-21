@@ -4,10 +4,15 @@ import { boardsModel } from "../db.js"
 
 export async function createBoard(req: Request, res: Response) {
     try {
-        await boardsModel.create({
+        const board = await boardsModel.create({
             title: req.body.title,
             organization: req.params.orgId as string
         })
+        res.status(200).json({
+            msg : "Board created succesfully",
+            id : board.id
+        })
+        return
     } catch (err) {
         res.status(500).json({
             msg: "Internal Server Error"
