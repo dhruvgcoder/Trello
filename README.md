@@ -34,7 +34,7 @@ A RESTful API backend for a project management system built with Express.js, Mon
 1. Clone the repository:
 ```bash
 git clone https://github.com/dhruvgcoder/Trello.git
-cd new
+cd Trello
 ```
 
 2. Install dependencies:
