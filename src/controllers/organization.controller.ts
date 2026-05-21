@@ -38,7 +38,7 @@ export async function createOrganization(req: Request, res: Response) {
 
 export async function inviteMemberToOrg(req: Request, res: Response) {
     const memberUsername = req.body.username
-    const organizationId = req.body.organizationId
+    const organizationId = req.params.orgId as string
     const userId = req.userId
 
     const organization = await organizationModel.findOne({
@@ -116,25 +116,25 @@ export async function getMembers(req: Request, res: Response) {
 }
 
 export async function removeMember(req: Request, res: Response) {
-    const userId = req.userId
-    const orgId = req.params.orgId
-    if (!userId || !orgId) {
+    const targetUserId = req.body.targetUserId
+    const orgId = req.params.orgId as string
+    if (!targetUserId || !orgId) {
         res.status(400).json({
             msg: "User not found or Org do not exists"
         })
         return
     }
-
+    
     await organizationModel.findByIdAndUpdate(
         orgId,
         {
             $pull: {
-                members: userId
+                members: targetUserId
             }
         }
     )
     res.status(200).json({
-        msg: `${userId} - User removed succesfully`
+        msg: `${targetUserId} - User removed succesfully`
     })
     return
 
