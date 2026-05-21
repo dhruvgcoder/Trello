@@ -7,6 +7,6 @@ import { createBoard, getBoards } from "../controllers/board.controller.js"
 
 export const boardsRouter = Router();
 
-boardsRouter.get("/", authMiddleware, getBoards)
+boardsRouter.get("/dashboard/:orgId", authMiddleware, getBoards)
 
 boardsRouter.post("/:orgId", authMiddleware, adminMiddleware, createBoard)
