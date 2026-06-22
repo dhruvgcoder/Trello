@@ -6,7 +6,7 @@ export function api(path, options = {}, token) {
   };
 
   if (token) {
-    headers.token = token;
+    headers.Authorization = `Bearer ${token}`;
   }
 
   return fetch(`${BASE_URL}${path}`, {

@@ -31,7 +31,7 @@ export default function OrgSidebar({ orgs, activeOrg, onSelect, onCreateOrg, tok
         setError(res.msg || "Failed to create organization");
       }
     } catch (err) {
-      setError("Error creating organization");
+      setError(err.message || "Error creating organization");
     }
     setLoading(false);
   }
