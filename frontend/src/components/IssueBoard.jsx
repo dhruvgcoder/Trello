@@ -5,6 +5,7 @@ import Btn from "./ui/Btn";
 import Modal from "./ui/Modal";
 import StatusBadge from "./ui/StatusBadge";
 import IssueCard from "./IssueCard";
+import { Plus, Loader2 } from "lucide-react";
 
 export default function IssueBoard({ board, token }) {
   const [issues, setIssues] = useState([]);
@@ -13,19 +14,20 @@ export default function IssueBoard({ board, token }) {
   const [desc, setDesc] = useState("");
   const [creating, setCreating] = useState(false);
   const [updatingId, setUpdatingId] = useState(null);
+  const [dragOverColumn, setDragOverColumn] = useState(null);
 
-  const fetchIssues = useCallback(async () => {
-    setFetching(true);
+  const fetchIssues = useCallback(async (showSkeleton = true) => {
+    if (showSkeleton) setFetching(true);
     try {
       const res = await api(`/issues/${board._id || board.title}`, {}, token);
       setIssues(res.issues || []);
     } catch (err) {
       console.error("Failed to fetch issues:", err);
     }
-    setFetching(false);
+    if (showSkeleton) setFetching(false);
   }, [board._id, board.title, token]);
 
-  useEffect(() => { fetchIssues(); }, [board._id, fetchIssues]);
+  useEffect(() => { fetchIssues(true); }, [board._id, fetchIssues]);
 
   async function createIssue() {
     if (!desc) return;
@@ -38,7 +40,7 @@ export default function IssueBoard({ board, token }) {
       );
       setDesc("");
       setShowCreate(false);
-      await fetchIssues();
+      await fetchIssues(false);
     } catch (err) {
       console.error("Failed to create issue:", err);
     }
@@ -61,56 +63,109 @@ export default function IssueBoard({ board, token }) {
     return acc;
   }, {});
 
-  if (fetching) return <div className="text-gray-500 text-sm animate-pulse">Loading issues…</div>;
+  if (fetching) {
+    return (
+      <div className="space-y-4 flex-1 flex flex-col min-h-0 overflow-hidden">
+        <div className="h-7 w-48 bg-zinc-900 rounded-lg animate-pulse mb-2 shrink-0" />
+        <div className="flex gap-5 overflow-x-auto pb-4 items-start flex-1 min-h-0">
+          {STATUSES.map((s) => (
+            <div key={s} className="w-72 shrink-0 bg-[#161619]/40 border border-zinc-800/80 rounded-2xl p-4 min-h-[300px]">
+              <div className="h-5 w-24 bg-zinc-900 rounded-full animate-pulse mb-4" />
+              <div className="space-y-3">
+                {[1, 2].map((i) => (
+                  <div key={i} className="h-16 bg-[#1d1d22] border border-zinc-800/80 rounded-xl animate-pulse" />
+                ))}
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    );
+  }
 
   return (
-    <div>
-      <div className="flex items-center justify-between mb-6">
-        <h3 className="text-xl font-bold text-gray-900">{board.title}</h3>
-        <Btn small onClick={() => setShowCreate(true)}> Add issue</Btn>
+    <div className="flex-1 flex flex-col min-h-0 overflow-hidden">
+      <div className="flex items-center justify-between mb-5 shrink-0">
+        <h3 className="text-lg font-bold text-zinc-100 tracking-tight">{board.title}</h3>
+        <Btn small onClick={() => setShowCreate(true)} icon={<Plus className="w-4 h-4" />}>
+          Add issue
+        </Btn>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 auto-rows-max">
-        {STATUSES.map((status) => (
-          <div key={status} className="bg-gray-100 rounded-lg p-4 min-h-[400px] flex flex-col">
-            <div className="flex items-center justify-between mb-4 pb-3 border-b border-gray-300">
-              <StatusBadge status={status} />
-              <span className="text-xs font-semibold text-gray-600 bg-white px-2 py-1 rounded">
-                {grouped[status].length}
-              </span>
+      {/* Horizontal Scrolling columns container */}
+      <div className="flex-1 flex gap-5 overflow-x-auto pb-4 items-start min-h-0 select-none">
+        {STATUSES.map((status) => {
+          const isDragOver = dragOverColumn === status;
+          return (
+            <div
+              key={status}
+              onDragOver={(e) => {
+                e.preventDefault();
+                if (dragOverColumn !== status) setDragOverColumn(status);
+              }}
+              onDragLeave={() => {
+                setDragOverColumn(null);
+              }}
+              onDrop={async (e) => {
+                e.preventDefault();
+                setDragOverColumn(null);
+                const issueId = e.dataTransfer.getData("text/plain");
+                if (issueId) {
+                  await updateStatus(issueId, status);
+                }
+              }}
+              className={`w-72 shrink-0 rounded-2xl p-4 flex flex-col border max-h-[calc(100vh-180px)] transition-all duration-300 ${
+                isDragOver
+                  ? "bg-indigo-500/5 border-indigo-500/40 ring-2 ring-indigo-500/10 shadow-inner"
+                  : "bg-[#161619]/40 border-zinc-800/80"
+              }`}
+            >
+              <div className="flex items-center justify-between mb-3 pb-2.5 border-b border-zinc-800/60 shrink-0">
+                <StatusBadge status={status} />
+                <span className="text-[10px] font-bold text-zinc-400 bg-zinc-900 px-2 py-0.5 rounded-md border border-zinc-800/80 shadow-sm">
+                  {grouped[status].length}
+                </span>
+              </div>
+
+              {/* Scrollable list container inside each column */}
+              <div className={`space-y-2.5 flex-1 overflow-y-auto pr-1 transition-all duration-200 min-h-[120px] scrollbar-thin ${
+                isDragOver ? "translate-y-1" : ""
+              }`}>
+                {grouped[status].length === 0 ? (
+                  <div className="text-xs text-zinc-600 text-center py-8 border border-dashed border-zinc-800/50 rounded-xl bg-zinc-950/15">
+                    Drag issues here
+                  </div>
+                ) : (
+                  grouped[status].map((issue, idx) => (
+                    <IssueCard
+                      key={issue._id || idx}
+                      issue={issue}
+                      onStatusChange={updateStatus}
+                      updating={updatingId === issue._id}
+                    />
+                  ))
+                )}
+              </div>
             </div>
-            <div className="space-y-3 flex-1">
-              {grouped[status].length === 0 && (
-                <div className="text-sm text-gray-500 text-center py-8">No issues</div>
-              )}
-              {grouped[status].map((issue, idx) => (
-                <IssueCard
-                  key={issue._id || idx}
-                  issue={issue}
-                  onStatusChange={updateStatus}
-                  updating={updatingId === issue._id}
-                />
-              ))}
-            </div>
-          </div>
-        ))}
+          );
+        })}
       </div>
 
       {showCreate && (
         <Modal title="New issue" onClose={() => setShowCreate(false)}>
           <div className="space-y-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Description</label>
+              <label className="block text-sm font-semibold text-zinc-300 mb-2">Description</label>
               <textarea
                 value={desc}
                 onChange={(e) => setDesc(e.target.value)}
                 rows={4}
-                placeholder="Describe the issue…"
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-600 focus:border-transparent resize-none"
+                placeholder="Describe the issue..."
+                className="w-full px-4 py-2.5 border border-zinc-800 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 bg-[#09090b] text-zinc-100 shadow-inner resize-none transition-all"
               />
             </div>
-            <Btn fullWidth onClick={createIssue} disabled={creating || !desc}>
-              {creating ? "Adding…" : "Add issue"}
+            <Btn fullWidth onClick={createIssue} disabled={creating || !desc} loading={creating}>
+              Add issue
             </Btn>
           </div>
         </Modal>

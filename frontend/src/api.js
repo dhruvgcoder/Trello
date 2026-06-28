@@ -1,4 +1,4 @@
-export const BASE_URL = "https://trello-8wof.onrender.com";
+export const BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:3001";
 
 export function api(path, options = {}, token) {
   const headers = {
