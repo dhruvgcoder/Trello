@@ -7,6 +7,7 @@ export const signupValidation = z.object({
 
 export const signinValidation = z.object({
     username: z.string().min(2),
+    password: z.string().min(8, "Password length should be 8"),
 })
 
 export const statusValidation = z.object({

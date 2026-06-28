@@ -28,8 +28,8 @@ export async function userSignup(req: Request, res: Response) {
         username: username
     })
     if (checkUser) {
-        res.status(411).json({
-            msg: "User Already Exist with this username"
+        res.status(409).json({
+            msg: "User already exists with this username"
         })
         return
     }
@@ -40,12 +40,15 @@ export async function userSignup(req: Request, res: Response) {
         password: hashPassword
     })
 
-    const token = jwt.sign({
-        userId: newUser.id
-    }, env.userSecret)
+    const token = jwt.sign(
+        { userId: newUser.id },
+        env.userSecret,
+        { expiresIn: env.JWT_EXPIRES_IN as unknown as number }
+    )
 
-    res.json({
+    res.status(201).json({
         id: newUser.id,
+        username: newUser.username,
         message: "You have signed up successfully",
         token: token
     })
@@ -54,36 +57,39 @@ export async function userSignup(req: Request, res: Response) {
 export async function userSignin(req: Request, res: Response) {
     const userData = signinValidation.safeParse(req.body)
     if (!userData.success) {
-        res.json({
-            msg: "invalid username"
+        res.status(400).json({
+            msg: userData.error.issues?.[0]?.message || "Invalid input"
         })
         return
     }
-    const { username }: signinInputType = userData.data
+    const { username, password }: signinInputType = userData.data
     const userExist = await userModel.findOne({
         username: username
     })
     if (!userExist) {
-        res.status(403).json({
-            msg: "User not found"
-        })
-        return
-    }
-
-    const password = req.body.password
-    const checkPassword = await bcrypt.compare(password, userExist.password)
-    if (!checkPassword) {
-        res.status(400).json({
+        res.status(401).json({
             msg: "Invalid credentials"
         })
         return
     }
 
-    const token = jwt.sign({
-        userId: userExist.id
-    }, env.userSecret)
+    const checkPassword = await bcrypt.compare(password, userExist.password)
+    if (!checkPassword) {
+        res.status(401).json({
+            msg: "Invalid credentials"
+        })
+        return
+    }
+
+    const token = jwt.sign(
+        { userId: userExist.id },
+        env.userSecret,
+        { expiresIn: env.JWT_EXPIRES_IN as unknown as number }
+    )
     res.json({
-        token: token
+        token: token,
+        id: userExist.id,
+        username: userExist.username
     })
 }
 

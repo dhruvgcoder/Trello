@@ -14,7 +14,7 @@ export function authMiddleware(
 
         if (typeof token !== "string") {
             res.status(401).json({
-                msg: "Token is Missing"
+                msg: "Authentication required"
             });
             return
         }
@@ -24,18 +24,21 @@ export function authMiddleware(
 
         if (userId) {
             req.userId = userId
-
             next()
         }
         else {
             res.status(401).json({
-                msg: "Token was incorrect"
+                msg: "Invalid token"
             })
         }
     } catch (err) {
-        res.status(400).json({
-            msg: "Invalid token"
-        })
+        if (err instanceof jwt.TokenExpiredError) {
+            res.status(401).json({ msg: "Token expired" })
+        } else if (err instanceof jwt.JsonWebTokenError) {
+            res.status(401).json({ msg: "Invalid token" })
+        } else {
+            res.status(500).json({ msg: "Internal server error" })
+        }
     }
 }
 

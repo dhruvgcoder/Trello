@@ -59,7 +59,7 @@ export async function updateIssue(req: Request, res: Response) {
         status: newStatus,
         statusUpdatedAt: Date.now()
     }, {
-        new: true
+        returnDocument: "after"
     })
     if (!updatedStatus) {
         res.json({
